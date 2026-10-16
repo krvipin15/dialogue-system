@@ -107,7 +107,7 @@ __marimo__/
 !.streamlit/config.toml
 
 # Logging
-logs/
+logs/*
 !logs/.gitkeep
 
 # Archives
@@ -129,7 +129,11 @@ logs/
 *.pb
 *.mar
 *.safetensors
-models/
+
+# Model directories
+models/**
+!models/**/
+!models/**/.gitkeep
 
 # Data files
 *.hdf5
