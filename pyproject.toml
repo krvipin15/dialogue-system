@@ -18,7 +18,11 @@ classifiers = [
     "Framework :: Pytest",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = [
+    "pydantic-settings>=2.16.0",
+    "sentry-sdk>=2.72.0",
+    "structlog>=26.1.0",
+]
 
 [dependency-groups]
 dev = [

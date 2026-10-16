@@ -129,6 +129,7 @@ logs/
 *.pb
 *.mar
 *.safetensors
+models/
 
 # Data files
 *.hdf5
