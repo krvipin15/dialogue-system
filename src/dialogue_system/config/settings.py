@@ -14,7 +14,6 @@ from pydantic import (
     Field,
     HttpUrl,
     SecretStr,
-    field_validator,
     model_validator,
 )
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -34,11 +33,7 @@ def _find_project_root(current_path: Path) -> Path:
         Path to the detected project root directory.
     """
     for parent in [current_path, *list(current_path.parents)]:
-        if (
-            (parent / "pyproject.toml").exists()
-            or (parent / "params.yaml").exists()
-            or (parent / ".git").exists()
-        ):
+        if (parent / "pyproject.toml").exists() or (parent / ".git").exists():
             return parent
 
     return current_path.resolve().parents[2]
@@ -108,11 +103,6 @@ class Settings(BaseSettings):
     ARGOS_DOWNLOAD_DIR: Path = Field(default_factory=lambda: BASE_DIR / "models" / "argos")
     PIPER_DOWNLOAD_DIR: Path = Field(default_factory=lambda: BASE_DIR / "models" / "piper")
 
-    # Language Model Paths
-    PIPER_VOICE_EN: Path = Field(
-        default_factory=lambda: BASE_DIR / "models" / "piper" / "en_US-lessac-medium.onnx"
-    )
-
     # Sentry
     SENTRY_DSN: HttpUrl | None = Field(default=None)
 
@@ -133,13 +123,19 @@ class Settings(BaseSettings):
     TRANSLATION_ENABLED: bool = Field(default=True)
     TTS_ENABLED: bool = Field(default=True)
 
-    @field_validator("CORS_ORIGINS", mode="before")
-    @classmethod
-    def parse_cors_origins(cls, value: str | list[str]) -> list[str]:
-        """Accept CORS origins as a comma-separated environment value."""
-        if isinstance(value, str):
-            return [origin.strip() for origin in value.split(",") if origin.strip()]
-        return value
+    # Model Setup Configuration
+    MODEL_LANGUAGES: list[str] = Field(default_factory=lambda: ["en", "hi"])
+    PIPER_VOICES_BASE_URL: str = Field(
+        default="https://huggingface.co/rhasspy/piper-voices/resolve/main/"
+    )
+    PIPER_VOICES: dict[str, str] = Field(
+        default_factory=lambda: {
+            "en_male": "en/en_US/mike/medium",
+            "en_female": "en/en_US/kristin/medium",
+            "hi_male": "hi/hi_IN/pratham/medium",
+            "hi_female": "hi/hi_IN/priyamvada/medium",
+        }
+    )
 
     @model_validator(mode="after")
     def _validate_environment_credentials(self) -> Self:
@@ -190,12 +186,6 @@ class Settings(BaseSettings):
         ]
         for directory in directories:
             directory.mkdir(parents=True, exist_ok=True)
-
-    def voice_path_for_language(self, language: str) -> Path | None:
-        """Resolve a configured Piper voice model for a language code."""
-        return {
-            "en": self.PIPER_VOICE_EN,
-        }.get(language)
 
 
 @lru_cache

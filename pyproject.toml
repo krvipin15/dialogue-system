@@ -19,6 +19,8 @@ classifiers = [
     "Typing :: Typed",
 ]
 dependencies = [
+    "argostranslate>=1.11.0",
+    "faster-whisper>=1.2.1",
     "pydantic-settings>=2.16.0",
     "sentry-sdk>=2.72.0",
     "structlog>=26.1.0",
