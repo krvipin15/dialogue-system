@@ -1,4 +1,4 @@
-"""Utility module for downloading and installing required models for the dialogue system.
+"""Utility module for Downloading and Installing Required Models.
 
 This module provides functions to download and install Piper voice models,
 Argos translation packages, and the Whisper model. It ensures that all necessary
@@ -163,7 +163,8 @@ def main() -> None:
     download_piper_voices()
 
     logger.info("Downloading Argos language pairs...")
-    codes = list(dict.fromkeys(settings.MODEL_LANGUAGES))
+    language_codes = [language.split("_")[0] for language in settings.PIPER_VOICES]
+    codes = list(dict.fromkeys(list(set(language_codes))))
     pairs = [(source, target) for source in codes for target in codes if source != target]
     install_argos_pairs(pairs)
 

@@ -113,6 +113,7 @@ class Settings(BaseSettings):
     LIVEKIT_AGENT_NAME: str = Field(default="dialogue-translator")
 
     # Whisper
+    WHISPER_SAMPLE_RATE: int = Field(default=16_000, ge=1)
     WHISPER_MODEL: str = Field(default="small")
     WHISPER_DEVICE: str = Field(default="cpu", pattern=r"^(cpu|cuda)$")
     WHISPER_COMPUTE_TYPE: str = Field(default="int8", pattern=r"^(float32|float16|int8)$")
@@ -124,7 +125,7 @@ class Settings(BaseSettings):
     TTS_ENABLED: bool = Field(default=True)
 
     # Model Setup Configuration
-    MODEL_LANGUAGES: list[str] = Field(default_factory=lambda: ["en", "hi"])
+    PIPER_OUTPUT_SAMPLE_RATE: int = Field(default=48_000)
     PIPER_VOICES_BASE_URL: str = Field(
         default="https://huggingface.co/rhasspy/piper-voices/resolve/main/"
     )
