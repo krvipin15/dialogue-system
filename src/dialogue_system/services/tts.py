@@ -63,6 +63,7 @@ def _load_voice(language: str) -> PiperVoice:
         logger.debug("Voice config for %s: %s", language, voice_config)
 
         # Extract parts and build path
+        # Languages are in the format "en_male" or "en_female".
         voice_list = voice_config.split("/")[1:]
         filename = "-".join(voice_list) + ".onnx"
         path = settings.PIPER_DOWNLOAD_DIR / filename
