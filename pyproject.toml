@@ -20,6 +20,7 @@ classifiers = [
 ]
 dependencies = [
     "argostranslate>=1.11.0",
+    "fastapi>=0.143.3",
     "faster-whisper>=1.2.1",
     "livekit-agents[silero]>=1.8.8",
     "livekit-api>=1.2.2",
@@ -28,6 +29,7 @@ dependencies = [
     "scipy>=1.18.1",
     "sentry-sdk>=2.72.0",
     "structlog>=26.1.0",
+    "uvicorn[standard]>=0.54.0",
 ]
 
 [dependency-groups]
