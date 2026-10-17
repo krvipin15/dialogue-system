@@ -6,6 +6,7 @@ entrypoint that orchestrates the TranslationPipeline.
 """
 
 import asyncio
+import os
 from contextlib import suppress
 from typing import Literal, cast
 
@@ -21,6 +22,16 @@ from dialogue_system.config.settings import get_settings
 configure_logging()
 logger = get_logger(__name__)
 settings = get_settings()
+
+if settings.LIVEKIT_URL:
+    os.environ["LIVEKIT_URL"] = settings.LIVEKIT_URL
+
+if settings.LIVEKIT_API_KEY is not None:
+    os.environ["LIVEKIT_API_KEY"] = settings.LIVEKIT_API_KEY.get_secret_value()
+
+if settings.LIVEKIT_API_SECRET is not None:
+    os.environ["LIVEKIT_API_SECRET"] = settings.LIVEKIT_API_SECRET.get_secret_value()
+
 server = AgentServer()
 
 # Global set to prevent asyncio tasks from being garbage collected mid-execution

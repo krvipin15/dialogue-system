@@ -5,6 +5,7 @@ console output and rotating file logs. It is designed to be thread-safe
 and prevents duplicate handler initialization in concurrent environments.
 """
 
+import copy
 import logging
 import logging.handlers
 import sys
@@ -18,6 +19,24 @@ import structlog
 from sentry_sdk.integrations.logging import LoggingIntegration
 
 from dialogue_system.config.settings import get_settings
+
+
+class SafeProcessorFormatter(structlog.stdlib.ProcessorFormatter):
+    """Safely format structlog records and third-party string log records.
+
+    LiveKit's multiprocessing log queue may preserve structlog metadata on a
+    LogRecord while serializing its message to a plain string. ProcessorFormatter
+    normally expects a dictionary for records marked as structlog records, so
+    route those string messages through its standard-library logging path.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        """Format a log record, handling both structlog and standard library records."""
+        if not isinstance(record.msg, dict):
+            record = copy.copy(record)
+            record.__dict__.pop("_logger", None)
+            record.__dict__.pop("_name", None)
+        return super().format(record)
 
 
 class LoggingLifecycle:
@@ -132,7 +151,7 @@ def configure_logging(*, force: bool = False) -> None:
 
         console_handler = logging.StreamHandler(sys.stdout)
         console_handler.setFormatter(
-            structlog.stdlib.ProcessorFormatter(
+            SafeProcessorFormatter(
                 foreign_pre_chain=shared_processors,
                 processors=[
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
@@ -152,7 +171,7 @@ def configure_logging(*, force: bool = False) -> None:
             encoding="utf-8",
         )
         file_handler.setFormatter(
-            structlog.stdlib.ProcessorFormatter(
+            SafeProcessorFormatter(
                 foreign_pre_chain=shared_processors,
                 processors=[
                     structlog.stdlib.ProcessorFormatter.remove_processors_meta,
